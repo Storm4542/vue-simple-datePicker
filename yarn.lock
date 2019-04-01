@@ -658,7 +658,7 @@
     lodash.kebabcase "^4.1.1"
     svg-tags "^1.0.0"
 
-"@vue/babel-preset-app@^3.5.3":
+"@vue/babel-preset-app@^3.0.0", "@vue/babel-preset-app@^3.5.3":
   version "3.5.3"
   resolved "http://registry.npm.taobao.org/@vue/babel-preset-app/download/@vue/babel-preset-app-3.5.3.tgz#4c89b2b3608840300c3fa52b132330522983cbeb"
   dependencies:
