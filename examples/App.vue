@@ -1,9 +1,17 @@
 <template>
     <div id="app">
         <div class="test">
-            <datepicker :value="value" @updateDay="value = $event" :time="true" :scope="scope" :scopeFunction="scopeFunction" class="g-date-picker"></datepicker>
-            <button @click="x">确定</button>
-            <datepicker :value="value" @updateDay="value = $event" :time="false" :scope="scope" :scopeFunction="scopeFunction" class="g-date-picker"></datepicker>
+            <datepicker :value="value"
+                        @updateDay="value=$event"
+                        :time="true"
+                        :time-scope="timeScope"
+                        :date-scope="dateScope"
+                        :date-scope-function="dateScopeFunction"
+                        :time-scope-function="timeScopeFunction"
+                        class="g-date-picker"></datepicker>
+<!--            <button @click="x">确定</button>-->
+            <!--            <datepicker :value="value" @updateDay="value = $event" :time="false" :scope="scope"-->
+            <!--                        :dateScopeFunction="dateScopeFunction" class="g-date-picker"></datepicker>-->
 
         </div>
 
@@ -20,18 +28,28 @@
         },
         data() {
             return {
-                fileList: [],
-                value: undefined,
-                scope: [new Date(1992, 11), new Date()],
+                value: new Date(),
+                dateScope: [new Date(1992, 11), new Date()],
+                timeScope: ['8:30', '22:30'], //['8:30','12:30'] 在这之间的时间可选择
             };
         },
         methods: {
+            updateDay(e) {
+
+                setTimeout(() => {
+                    this.value = e;
+                }, 2000);
+            },
             x() {
                 console.log(this.value);
             },
-            scopeFunction(){
-                alert('日期限制为 1992.11 - 今天')
-            }
+            dateScopeFunction() {
+                alert('日期限制为 1992.11 - 今天');
+            },
+            timeScopeFunction() {
+                alert('日期限制为 8:30 ~ 22:30');
+
+            },
 
         }
     };

@@ -28,6 +28,18 @@ export default {
         copy.setFullYear(newYear);
         return copy;
     },
+    pad2(number) {
+        if (typeof number !== 'number') {
+            throw new Error('wrong param');
+        }
+        return (number >= 10 ? '' : '0') + number;
+    },
+    timeScopeHandler(scope) {
+        if (!scope) return;
+        let [startHour, startMinute] = scope[0].split(':');
+        let [endHour, endMinute] = scope[1].split(':');
+        return [parseInt(startHour), parseInt(startMinute), parseInt(endHour), parseInt(endMinute)];
+    },
     getYearMonthDate: getYearMonthDateTime
 };
 

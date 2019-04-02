@@ -1,7 +1,7 @@
 <template>
     <div ref="wrapper">
         <g-popover ref="popover" position="bottom" :container="wrapper" @open="onOpen">
-            <g-input :value="formattedValue" readonly type="text"/>
+            <g-input :value="formattedValue()" readonly type="text"/>
             <template slot="content">
                 <div class="g-date-picker-pop" @selectstart.prevent>
                     <div class="g-date-picker-nav">
@@ -61,43 +61,45 @@
                                       today:isToady(getVisibleDay(i,j))}
                                       ]"
                                       v-for="j in helper.range(1,7)" :key="j">
+                                    <!--一周七天-->
                                     <!--二元数组-->
                                  {{getVisibleDay(i,j).getDate()}}
                              </span>
                             </div>
                         </template>
                         <template v-else>
-                            <label>
-                                <select @change="onSelectTime" :value="display.isAfternoon">
-                                    <option value="0">上午</option>
-                                    <option value="1">下午</option>
-
-                                </select>
-                            </label>
-                            <label>
-                                <select @change="onSelectHour" :value="display.hour">
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                    <option value="4">4</option>
-                                    <option value="5">5</option>
-                                    <option value="6">6</option>
-                                    <option value="7">7</option>
-                                    <option value="8">8</option>
-                                    <option value="9">9</option>
-                                    <option value="10">10</option>
-                                    <option value="11">11</option>
-                                    <option value="12">12</option>
-                                </select>时
-                            </label>
-                            <label>
-                                <select @change="onSelectMinutes" :value="display.minutes">
-                                    <option value="0">0</option>
-                                    <option value="15">15</option>
-                                    <option value="30">30</option>
-                                    <option value="45">45</option>
-                                </select>分
-                            </label>
+                            <div :class="c('selectMonth')">
+                                <label>
+                                    <select @change="onSelectTime" :value="display.isAfternoon">
+                                        <option value="0">上午</option>
+                                        <option value="1">下午</option>
+                                    </select>
+                                </label>
+                                <label>
+                                    <select @change="onSelectHour" :value="display.hour">
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                        <option value="8">8</option>
+                                        <option value="9">9</option>
+                                        <option value="10">10</option>
+                                        <option value="11">11</option>
+                                        <option value="12">12</option>
+                                    </select>时
+                                </label>
+                                <label>
+                                    <select @change="onSelectMinutes" :value="display.minutes">
+                                        <option value="0">0</option>
+                                        <option value="15">15</option>
+                                        <option value="30">30</option>
+                                        <option value="45">45</option>
+                                    </select>分
+                                </label>
+                            </div>
                         </template>
                     </div>
                     <div :class="c('actions')">
@@ -134,11 +136,17 @@
             value: {
                 type: Date,
             },
-            scope: {
+            dateScope: {
                 type: Array,//[start,end]
                 default: () => [helper.addYear(new Date(), -20), helper.addYear(new Date(), 20)] //默认20年前，20年后
             },
-            scopeFunction: {
+            timeScope: {
+                type: Array
+            },
+            dateScopeFunction: {
+                type: Function,
+            },
+            timeScopeFunction: {
                 type: Function,
             },
             time: {
@@ -153,7 +161,6 @@
             let [year, month, day, hour, minutes] = helper.getYearMonthDate(this.value || new Date());
             let isAfternoon = '0';
             if (hour > 12) {
-
                 isAfternoon = '1';
                 hour -= 12;
             }
@@ -164,6 +171,7 @@
                 weekdays: ['日', '一', '二', '三', '四', '五', '六'],
                 wrapper: null,
                 display: {year, month, isAfternoon, hour, minutes},
+                displayCheck: {year, month, isAfternoon, hour, minutes},
                 cellDate: new Date(),
             };
         },
@@ -181,18 +189,6 @@
                     array.push(new Date(x + i * 3600 * 24 * 1000));
                 }
                 return array;
-            },
-            formattedValue() {
-                console.log('当前', this.value);
-                if (!this.value) {
-                    return '';
-                }
-                const [year, month, day, hour, minute] = this.helper.getYearMonthDate(this.value);
-                if (this.time) {
-                    return `${year}年${month + 1}月${day}日${hour}时${minute}分`;
-                } else {
-                    return `${year}年${month + 1}月${day}日`;
-                }
             },
             years() {
                 return helper.range(this.scope[0].getFullYear(), this.scope[1].getFullYear());
@@ -213,43 +209,84 @@
                     this.mode = 'days';
                 }
             },
+            formattedValue() {
+                if (!this.value) {
+                    return '';
+                }
+                const [year, month, day, hour, minute] = this.helper.getYearMonthDate(this.value);
+                if (this.time) {
+                    return `${year}-${helper.pad2(month + 1)}-${helper.pad2(day)} ${helper.pad2(hour)}:${helper.pad2(minute)}`;
+                } else {
+                    return `${year}-${helper.pad2(month + 1)}-${helper.pad2(day)}`;
+                }
+            },
             getVisibleDay(row, col) {
                 return this.visibleDays[(row - 1) * 7 + col - 1];
             },
             onClickCell(date) {
                 if (this.isCurrentMonth(date)) {
-                    console.log(date);
-                    this.cellDate = date;
-                    // let [y, m, n, hour, minute] = helper.getYearMonthDate(new Date());
-                    // date.setHours(hour);
-                    // date.setMinutes(minute);
+                    let [y, m, n, hour, minute] = helper.getYearMonthDate(this.value);
+                    date.setHours(hour);
+                    date.setMinutes(minute);
+                    if (hour > 12) {
+                        this.display.isAfternoon = '1';
+                        hour -= 12;
+                    }
+                    this.display.hour = hour;
                     if (!this.time) {
-                        this.$emit('updateDay', date);
                         this.$refs.popover.close();
                     }
+                    this.$emit('updateDay', date);
                 }
             },
             nextMode() {
                 if (this.mode === 'months') {
                     this.mode = 'days';
-                    console.log(this.mode);
                 } else if (this.mode === 'days') {
                     this.mode = 'time';
-                    console.log(this.mode);
                 } else {
-                    console.log(this.mode);
-                    console.log(this.display.isAfternoon);
-                    if (parseInt(this.display.isAfternoon) === 1) {
-                        this.display.hour += 12;
-                    }
-                    let date = this.cellDate;
-                    date.setHours(this.display.hour);
-                    date.setMinutes(this.display.minutes);
+                    this.updateTime();
+                }
+            },
+            checkTime() {
+                let [startHour, startMinute, endHour, endMinute] = helper.timeScopeHandler(this.timeScope);
+                let time1 = new Date(1991, 1, 1, parseInt(this.displayCheck.hour), parseInt(this.displayCheck.minutes));
+                let time2 = new Date(1991, 1, 1, startHour, startMinute);
+                let time3 = new Date(1991, 1, 1, endHour, endMinute);
+                return time1 >= time2 && time1 <= time3;
+            },
+            updateTime() {
+                if (parseInt(this.displayCheck.isAfternoon) === 1) {
+                    this.displayCheck.hour += 12;
+                }
+                let date = this.value;
+                //校验失败使用原来的 display恢复，成功则使用displayCheck更新
+                if (this.checkTime()) {
+                    console.log(this.displayCheck);
+                    date.setHours(this.displayCheck.hour);
+                    date.setMinutes(this.displayCheck.minutes);
                     console.log(date);
                     this.$emit('updateDay', date);
-
                     this.$refs.popover.close();
+                } else {
+                    console.log(this.displayCheck);
+                    this.timeScopeFunction();
+                    date.setHours(this.display.hour);
+                    date.setMinutes(this.display.minutes);
+                    this.$emit('updateDay', date);
                 }
+
+                let [y, m, n, hour, minutes] = helper.getYearMonthDate(this.value);
+                if (hour > 12) {
+                    this.display.isAfternoon = '1';
+                    this.displayCheck.isAfternoon = '1';
+                    hour -= 12;
+                }
+                this.display.hour = hour;
+                this.displayCheck.hour = hour;
+                this.display.minutes = minutes;
+                this.displayCheck.minutes = minutes;
+
             },
             isCurrentMonth(day) {
                 const [year1, month1] = this.helper.getYearMonthDate(day);
@@ -327,7 +364,7 @@
                     this.display.year = parseInt(e.target.value);
                 } else {
                     e.target.value = this.display.year;
-                    this.scopeFunction();
+                    this.dateScopeFunction();
                 }
             },
             onSelectMonth(e) {
@@ -337,19 +374,18 @@
                     this.display.month = parseInt(e.target.value);
                 } else {
                     e.target.value = this.display.month;
-                    this.scopeFunction();
+                    this.dateScopeFunction();
                 }
 
             },
             onSelectTime(e) {
-                this.display.isAfternoon = parseInt(e.target.value);
-                console.log(this.display.isAfternoon);
+                this.displayCheck.isAfternoon = parseInt(e.target.value);
             },
             onSelectHour(e) {
-                this.display.hour = parseInt(e.target.value);
+                this.displayCheck.hour = parseInt(e.target.value);
             },
             onSelectMinutes(e) {
-                this.display.minutes = parseInt(e.target.value);
+                this.displayCheck.minutes = parseInt(e.target.value);
             },
             onClickToday() {
                 const date = new Date();
@@ -382,6 +418,50 @@
 
         &-pop-wrapper {
             padding: 0;
+        }
+
+        select {
+            display: inline-block;
+            font-size: 16px;
+            font-family: sans-serif;
+            font-weight: 700;
+            color: #444;
+            line-height: 1.3;
+            padding: .6em 1.4em .5em .8em;
+            max-width: 100%;
+            box-sizing: border-box;
+            margin: 0;
+            border: 1px solid #aaa;
+            box-shadow: 0 1px 0 1px rgba(0, 0, 0, .04);
+            border-radius: .5em;
+            -moz-appearance: none;
+            -webkit-appearance: none;
+            appearance: none;
+            background-color: #fff;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'),
+            linear-gradient(to bottom, #ffffff 0%, #e5e5e5 100%);
+            background-repeat: no-repeat, repeat;
+            background-position: right .7em top 50%, 0 0;
+            background-size: .65em auto, 100%;
+        }
+
+        select::-ms-expand {
+            display: none;
+        }
+
+        select:hover {
+            border-color: #888;
+        }
+
+        select:focus {
+            border-color: #aaa;
+            box-shadow: 0 0 1px 3px rgba(59, 153, 252, .7);
+            color: #222;
+            outline: none;
+        }
+
+        select option {
+            font-weight: normal;
         }
 
         &-cell {
@@ -422,7 +502,6 @@
             width: 224px;
             height: 224px;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
         }
