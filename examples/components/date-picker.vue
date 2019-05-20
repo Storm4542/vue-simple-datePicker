@@ -1,5 +1,5 @@
 <template>
-    <div ref="wrapper">
+    <div class="g-date-picker" ref="wrapper">
         <g-popover ref="popover" position="bottom" :container="wrapper" @open="onOpen">
             <g-input :value="formattedValue()" readonly type="text"/>
             <template slot="content">
@@ -191,7 +191,7 @@
                 return array;
             },
             years() {
-                return helper.range(this.scope[0].getFullYear(), this.scope[1].getFullYear());
+                return helper.range(this.dateScope[0].getFullYear(), this.dateScope[1].getFullYear());
             }
 
         },
@@ -249,6 +249,7 @@
                 }
             },
             checkTime() {
+                if (!this.timeScope) return true;
                 let [startHour, startMinute, endHour, endMinute] = helper.timeScopeHandler(this.timeScope);
                 let time1 = new Date(1991, 1, 1, parseInt(this.displayCheck.hour), parseInt(this.displayCheck.minutes));
                 let time2 = new Date(1991, 1, 1, startHour, startMinute);
@@ -360,7 +361,7 @@
             onSelectYear(e) {
                 const year = parseInt(e.target.value);
                 const d = new Date(year, this.display.month);
-                if (d >= this.scope[0] && d <= this.scope[1]) {
+                if (d >= this.dateScope[0] && d <= this.dateScope[1]) {
                     this.display.year = parseInt(e.target.value);
                 } else {
                     e.target.value = this.display.year;
@@ -370,7 +371,7 @@
             onSelectMonth(e) {
                 const month = parseInt(e.target.value);
                 const d = new Date(this.display.year, month);
-                if (d >= this.scope[0] && d <= this.scope[1]) {
+                if (d >= this.dateScope[0] && d <= this.dateScope[1]) {
                     this.display.month = parseInt(e.target.value);
                 } else {
                     e.target.value = this.display.month;

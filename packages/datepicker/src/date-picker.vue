@@ -1,5 +1,5 @@
 <template>
-    <div ref="wrapper">
+    <div class="g-date-picker" ref="wrapper">
         <g-popover ref="popover" position="bottom" :container="wrapper" @open="onOpen">
             <g-input :value="formattedValue()" readonly type="text"/>
             <template slot="content">
@@ -191,7 +191,7 @@
                 return array;
             },
             years() {
-                return helper.range(this.scope[0].getFullYear(), this.scope[1].getFullYear());
+                return helper.range(this.dateScope[0].getFullYear(), this.dateScope[1].getFullYear());
             }
 
         },
@@ -262,14 +262,11 @@
                 let date = this.value;
                 //校验失败使用原来的 display恢复，成功则使用displayCheck更新
                 if (this.checkTime()) {
-                    console.log(this.displayCheck);
                     date.setHours(this.displayCheck.hour);
                     date.setMinutes(this.displayCheck.minutes);
-                    console.log(date);
                     this.$emit('updateDay', date);
                     this.$refs.popover.close();
                 } else {
-                    console.log(this.displayCheck);
                     this.timeScopeFunction();
                     date.setHours(this.display.hour);
                     date.setMinutes(this.display.minutes);
@@ -360,7 +357,7 @@
             onSelectYear(e) {
                 const year = parseInt(e.target.value);
                 const d = new Date(year, this.display.month);
-                if (d >= this.scope[0] && d <= this.scope[1]) {
+                if (d >= this.dateScope[0] && d <= this.dateScope[1]) {
                     this.display.year = parseInt(e.target.value);
                 } else {
                     e.target.value = this.display.year;
@@ -370,7 +367,7 @@
             onSelectMonth(e) {
                 const month = parseInt(e.target.value);
                 const d = new Date(this.display.year, month);
-                if (d >= this.scope[0] && d <= this.scope[1]) {
+                if (d >= this.dateScope[0] && d <= this.dateScope[1]) {
                     this.display.month = parseInt(e.target.value);
                 } else {
                     e.target.value = this.display.month;
