@@ -93,10 +93,12 @@
                                 </label>
                                 <label>
                                     <select @change="onSelectMinutes" :value="display.minutes">
-                                        <option value="0">0</option>
-                                        <option value="15">15</option>
+                                        <option value="0">00</option>
+                                        <option value="10">10</option>
+                                        <option value="20">20</option>
                                         <option value="30">30</option>
-                                        <option value="45">45</option>
+                                        <option value="40">40</option>
+                                        <option value="50">50</option>
                                     </select>分
                                 </label>
                             </div>
@@ -135,10 +137,11 @@
             },
             value: {
                 type: Date,
+                required: true
             },
             dateScope: {
                 type: Array,//[start,end]
-                default: () => [helper.addYear(new Date(), -20), helper.addYear(new Date(), 20)] //默认20年前，20年后
+                // default: () => [helper.addYear(new Date(), -20), helper.addYear(new Date(), 20)] //默认20年前，20年后
             },
             timeScope: {
                 type: Array
@@ -249,6 +252,7 @@
                 }
             },
             checkTime() {
+                if (!this.timeScope) return true;
                 let [startHour, startMinute, endHour, endMinute] = helper.timeScopeHandler(this.timeScope);
                 let time1 = new Date(1991, 1, 1, parseInt(this.displayCheck.hour), parseInt(this.displayCheck.minutes));
                 let time2 = new Date(1991, 1, 1, startHour, startMinute);

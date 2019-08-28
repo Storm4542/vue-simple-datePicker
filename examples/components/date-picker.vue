@@ -94,9 +94,11 @@
                                 <label>
                                     <select @change="onSelectMinutes" :value="display.minutes">
                                         <option value="0">0</option>
-                                        <option value="15">15</option>
+                                        <option value="10">10</option>
+                                        <option value="20">20</option>
                                         <option value="30">30</option>
-                                        <option value="45">45</option>
+                                        <option value="40">40</option>
+                                        <option value="50">50</option>
                                     </select>分
                                 </label>
                             </div>
@@ -138,7 +140,7 @@
             },
             dateScope: {
                 type: Array,//[start,end]
-                default: () => [helper.addYear(new Date(), -20), helper.addYear(new Date(), 20)] //默认20年前，20年后
+                // default: () => [helper.addYear(new Date(), -20), helper.addYear(new Date(), 20)] //默认20年前，20年后
             },
             timeScope: {
                 type: Array

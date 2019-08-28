@@ -1,15 +1,16 @@
 <template>
     <div id="app">
         <div class="test">
-            <datepicker :value="value"
-                        @updateDay="value=$event"
-                        :time="true"
-                        :time-scope="timeScope"
-                        :date-scope="dateScope"
-                        :date-scope-function="dateScopeFunction"
-                        :time-scope-function="timeScopeFunction"
-                        class="g-date-picker"></datepicker>
-<!--            <button @click="x">确定</button>-->
+            <g-date-picker :value="value"
+                           @updateDay="value=$event"
+                           :time="true"
+                           :time-scope="timeScope"
+                           :date-scope="dateScope"
+                           :date-scope-function="dateScopeFunction"
+                           :time-scope-function="timeScopeFunction"
+            >
+            </g-date-picker>
+            <!--            <button @click="x">确定</button>-->
             <!--            <datepicker :value="value" @updateDay="value = $event" :time="false" :scope="scope"-->
             <!--                        :dateScopeFunction="dateScopeFunction" class="g-date-picker"></datepicker>-->
 
@@ -24,7 +25,7 @@
     export default {
         name: 'app',
         components: {
-            datepicker
+            'g-date-picker': datepicker
         },
         data() {
             return {
@@ -34,15 +35,6 @@
             };
         },
         methods: {
-            updateDay(e) {
-
-                setTimeout(() => {
-                    this.value = e;
-                }, 2000);
-            },
-            x() {
-                console.log(this.value);
-            },
             dateScopeFunction() {
                 alert('日期限制为 1992.11 - 今天');
             },
@@ -50,7 +42,6 @@
                 alert('日期限制为 8:30 ~ 22:30');
 
             },
-
         }
     };
 </script>
