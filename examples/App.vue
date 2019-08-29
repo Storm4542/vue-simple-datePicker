@@ -1,15 +1,18 @@
 <template>
     <div id="app">
         <div class="test">
-            <g-date-picker :value="value"
-                           @updateDay="value=$event"
-                           :time="true"
-                           :time-scope="timeScope"
-                           :date-scope="dateScope"
-                           :date-scope-function="dateScopeFunction"
-                           :time-scope-function="timeScopeFunction"
-            >
-            </g-date-picker>
+            <!--            <g-date-picker :value="value"-->
+            <!--                           @updateDay="value=$event"-->
+            <!--                           :time="false"-->
+            <!--                           :time-scope="timeScope"-->
+            <!--                           :date-scope="dateScope"-->
+            <!--                           :date-scope-function="dateScopeFunction"-->
+            <!--                           :time-scope-function="timeScopeFunction"-->
+            <!--            >-->
+            <!--            </g-date-picker>-->
+            <calendar :value="value"
+                      @updateDay="value=$event"
+                      :time="false"></calendar>
             <!--            <button @click="x">确定</button>-->
             <!--            <datepicker :value="value" @updateDay="value = $event" :time="false" :scope="scope"-->
             <!--                        :dateScopeFunction="dateScopeFunction" class="g-date-picker"></datepicker>-->
@@ -21,11 +24,13 @@
 
 <script>
     import datepicker from './components/date-picker';
+    import calendar from './components/calendar';
 
     export default {
         name: 'app',
         components: {
-            'g-date-picker': datepicker
+            'g-date-picker': datepicker,
+            calendar
         },
         data() {
             return {

@@ -1,6 +1,6 @@
 {
   "name": "vue-simple-datepicker-ln",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": false,
   "main": "lib/vue-simple-datepicker.umd.min.js",
   "repository": {
@@ -23,7 +23,8 @@
   },
   "dependencies": {
     "@vue/babel-preset-app": "^3.0.0",
-    "vue": "^2.6.6"
+    "vue": "^2.6.6",
+    "vue-directive-touch": "^1.0.28"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.5.3",

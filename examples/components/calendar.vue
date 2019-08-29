@@ -1,126 +1,99 @@
 <template>
-    <div class="g-date-picker" ref="wrapper">
-        <g-popover ref="popover" position="bottom" :container="wrapper" @open="onOpen">
-            <g-input :value="formattedValue()" readonly type="text"/>
-            <template slot="content">
-                <div class="g-date-picker-pop" @selectstart.prevent>
-                    <div class="g-date-picker-nav">
+    <div v-click-outside="close" class="g-date-picker" ref="wrapper">
+        <div :class="c('header')">
+            <div @click="datePickerVisible = !datePickerVisible" :class="c('header-select')">
+                <span :class="c('header-select-year')"> {{helper.getYearMonthDate(value)[0]}}</span>
+                <span :class="c('header-select-month')">  {{helper.getYearMonthDate(value)[1]+1}}月</span>
+                <span style="transform: rotate(0.75turn);"><g-icon iconname="left"></g-icon></span>
+            </div>
+            <div v-touch:left="onLeftTouchHeader" v-touch:right="onRightTouchHeader" :class="c('header-days')">
+                <div @click="onClickCell(new Date(i))"
+                     :class="[c('header-days-day')]"
+                     v-for="i in getVisibleWeek() " :key="i+0">
+                    <span :class="c('header-days-day-week')">{{ weekTranslate(new Date(i)) }}</span>
+                    <span :class="[c('header-days-day'),{selected:isSelected(new Date(i))}]"> {{new Date(i).getDate()}}</span>
+
+                </div>
+            </div>
+        </div>
+        <transition name="slide">
+            <div v-show="datePickerVisible" class="g-date-picker-pop" @selectstart.prevent>
+                <div class="g-date-picker-nav">
                         <span @click="preYear" :class="c('preYear','navItem')"> <g-icon
                                 iconname="leftleft"></g-icon></span>
-                        <span @click="preMonth" :class="c('preMonth','navItem')"><g-icon
-                                iconname="left"></g-icon></span>
-                        <span @click="onClickMonths" :class="c('yearAndMonth')">
+                    <span @click="preMonth" :class="c('preMonth','navItem')"><g-icon
+                            iconname="left"></g-icon></span>
+                    <span @click="onClickMonths" :class="c('yearAndMonth')">
                             <span>{{display.year}}年</span>
                             <span>{{display.month+1}}月</span>
                         </span>
-                        <span @click="nextMonth" :class="c('nextMonth','navItem')"> <g-icon
-                                iconname='right'></g-icon></span>
-                        <span @click="nextYear" :class="c('nextYear','navItem')"><g-icon iconname='rightright'></g-icon></span>
-                    </div>
-                    <div class="g-date-picker-panels">
-                        <template v-if="mode === 'months'">
-                            <div :class="c('selectMonth')">
-                                <div :class="c('selects')">
-                                    <label>
-                                        <select @change="onSelectYear" :value="display.year">
-                                            <option v-for="year in years" :value="year">{{year}}</option>
-                                        </select>年
-                                    </label>
-                                    <label>
-                                        <select @change="onSelectMonth" :value="display.month">
-                                            <option value="0">1</option>
-                                            <option value="1">2</option>
-                                            <option value="2">3</option>
-                                            <option value="3">4</option>
-                                            <option value="4">5</option>
-                                            <option value="5">6</option>
-                                            <option value="6">7</option>
-                                            <option value="7">8</option>
-                                            <option value="8">9</option>
-                                            <option value="9">10</option>
-                                            <option value="10">11</option>
-                                            <option value="11">12</option>
-                                        </select>月
-                                    </label>
-                                </div>
+                    <span @click="nextMonth" :class="c('nextMonth','navItem')"> <g-icon
+                            iconname='right'></g-icon></span>
+                    <span @click="nextYear" :class="c('nextYear','navItem')"><g-icon
+                            iconname='rightright'></g-icon></span>
+                </div>
+                <div v-touch:left="onLeftTouchPanels" v-touch:right="onRightTouchPanels" class="g-date-picker-panels">
+                    <template v-if="mode === 'months'">
+                        <div :class="c('selectMonth')">
+                            <div :class="c('selects')">
+                                <label>
+                                    <select @change="onSelectYear" :value="display.year">
+                                        <option v-for="year in years" :value="year">{{year}}</option>
+                                    </select>年
+                                </label>
+                                <label>
+                                    <select @change="onSelectMonth" :value="display.month">
+                                        <option value="0">1</option>
+                                        <option value="1">2</option>
+                                        <option value="2">3</option>
+                                        <option value="3">4</option>
+                                        <option value="4">5</option>
+                                        <option value="5">6</option>
+                                        <option value="6">7</option>
+                                        <option value="7">8</option>
+                                        <option value="8">9</option>
+                                        <option value="9">10</option>
+                                        <option value="10">11</option>
+                                        <option value="11">12</option>
+                                    </select>月
+                                </label>
                             </div>
-                        </template>
-                        <template v-else-if="mode === 'days'">
-                            <div :class="c('weekdays')">
+                        </div>
+                    </template>
+                    <template v-else-if="mode === 'days'">
+                        <div :class="c('weekdays')">
                                 <span :class="c('weekday')" v-for="n in [1,2,3,4,5,6,0]" :key="n">
                                     {{weekdays[n]}}
                                 </span>
-                            </div>
-                            <!--6个 DIV 代表 6 行（6周） -->
-                            <div :class="c('row')" v-for="i in helper.range(1,6)" :key="i">
-                                <!--7个span 代表 7列（7天）-->
-                                <span @click="onClickCell(getVisibleDay(i,j))"
-                                      :class="[c('cell'),
+                        </div>
+                        <!--6个 DIV 代表 6 行（6周） -->
+                        <div :class="c('row')" v-for="i in helper.range(1,6)" :key="i">
+                            <!--7个span 代表 7列（7天）-->
+                            <span @click="onClickCell(getVisibleDay(i,j))"
+                                  :class="[c('cell'),
                                       {currentMonth:isCurrentMonth(getVisibleDay(i,j)),
                                       selected:isSelected(getVisibleDay(i,j)),
                                       today:isToady(getVisibleDay(i,j))}
                                       ]"
-                                      v-for="j in helper.range(1,7)" :key="j">
+                                  v-for="j in helper.range(1,7)" :key="j">
                                     <!--一周七天-->
-                                    <!--二元数组-->
+                                <!--二元数组-->
                                  {{getVisibleDay(i,j).getDate()}}
                              </span>
-                            </div>
-                        </template>
-                        <template v-else>
-                            <div :class="c('selectMonth')">
-                                <label>
-                                    <select @change="onSelectTime" :value="display.isAfternoon">
-                                        <option value="0">上午</option>
-                                        <option value="1">下午</option>
-                                    </select>
-                                </label>
-                                <label>
-                                    <select @change="onSelectHour" :value="display.hour">
-                                        <option value="1">1</option>
-                                        <option value="2">2</option>
-                                        <option value="3">3</option>
-                                        <option value="4">4</option>
-                                        <option value="5">5</option>
-                                        <option value="6">6</option>
-                                        <option value="7">7</option>
-                                        <option value="8">8</option>
-                                        <option value="9">9</option>
-                                        <option value="10">10</option>
-                                        <option value="11">11</option>
-                                        <option value="12">12</option>
-                                    </select>时
-                                </label>
-                                <label>
-                                    <select @change="onSelectMinutes" :value="display.minutes">
-                                        <option value="0">0</option>
-                                        <option value="10">10</option>
-                                        <option value="20">20</option>
-                                        <option value="30">30</option>
-                                        <option value="40">40</option>
-                                        <option value="50">50</option>
-                                    </select>分
-                                </label>
-                            </div>
-                        </template>
-                    </div>
-                    <div :class="c('actions')">
-                        <g-button v-if="time" @click="nextMode">确定</g-button>
-                        <g-button v-show="mode!=='time'" @click="onClickToday">今天</g-button>
-                        <g-button @click="onClickClear">清除</g-button>
-                    </div>
+                        </div>
+                    </template>
                 </div>
-            </template>
-        </g-popover>
-
-
+                <div :class="c('actions')">
+                    <g-button v-show="mode!=='time'" @click="onClickToday">今天</g-button>
+                    <g-button @click="onClickClear">清除</g-button>
+                </div>
+            </div>
+        </transition>
     </div>
 </template>
 
 <script>
-    import GInput from './input';
     import GIcon from './icon';
-    import GPopover from './popover';
     import GButton from './button';
     import ClickOutside from './click-outside';
     import helper from './helper';
@@ -128,7 +101,7 @@
 
     export default {
         name: "g-date-picker",
-        components: {GInput, GIcon, GPopover, GButton},
+        components: {GIcon, GButton},
         directives: {ClickOutside},
         props: {
             firstDayOfWeek: {
@@ -170,6 +143,7 @@
             return {
                 mode: 'days', // | 'months' | 'days' | 'time'
                 helper: helper,
+                datePickerVisible: false,
                 weekdays: ['日', '一', '二', '三', '四', '五', '六'],
                 wrapper: null,
                 display: {year, month, isAfternoon, hour, minutes},
@@ -201,6 +175,9 @@
             onOpen() {
                 this.mode = 'days';
             },
+            close() {
+                this.datePickerVisible = false;
+            },
             c(...classNames) {
                 return classNames.map(className => `g-date-picker-${className}`);
             },
@@ -222,24 +199,35 @@
                     return `${year}-${helper.pad2(month + 1)}-${helper.pad2(day)}`;
                 }
             },
+            weekTranslate(day) {
+                let week = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+                if (this.isToady(new Date(day))) return '今天';
+                return week[day.getDay()];
+            },
             getVisibleDay(row, col) {
                 return this.visibleDays[(row - 1) * 7 + col - 1];
             },
+            getVisibleWeek() {
+                let value = (this.value).getTime();
+                let oneDay = 1000 * 60 * 60 * 24;
+                return [value - 3 * oneDay, value - 2 * oneDay, value - oneDay, value, value + oneDay, value + 2 * oneDay, new Date(value + 3 * oneDay)];
+            },
+            onLeftTouchHeader() {
+                this.onClickCell(new Date((this.value).getTime() + 6 * 1000 * 60 * 60 * 24));
+            },
+            onRightTouchHeader() {
+                this.onClickCell(new Date((this.value).getTime() - 6 * 1000 * 60 * 60 * 24));
+            },
+            onRightTouchPanels() {
+                this.preMonth();
+            },
+            onLeftTouchPanels() {
+                this.nextMonth();
+            },
             onClickCell(date) {
-                if (this.isCurrentMonth(date)) {
-                    let [y, m, n, hour, minute] = helper.getYearMonthDate(this.value);
-                    date.setHours(hour);
-                    date.setMinutes(minute);
-                    if (hour > 12) {
-                        this.display.isAfternoon = '1';
-                        hour -= 12;
-                    }
-                    this.display.hour = hour;
-                    if (!this.time) {
-                        this.$refs.popover.close();
-                    }
-                    this.$emit('updateDay', date);
-                }
+                let [year, month, day, hour, minutes] = helper.getYearMonthDate(date);
+                this.display = {year, month, day, hour, minutes};
+                this.$emit('updateDay', date);
             },
             nextMode() {
                 if (this.mode === 'months') {
@@ -249,47 +237,6 @@
                 } else {
                     this.updateTime();
                 }
-            },
-            checkTime() {
-                if (!this.timeScope) return true;
-                let [startHour, startMinute, endHour, endMinute] = helper.timeScopeHandler(this.timeScope);
-                let time1 = new Date(1991, 1, 1, parseInt(this.displayCheck.hour), parseInt(this.displayCheck.minutes));
-                let time2 = new Date(1991, 1, 1, startHour, startMinute);
-                let time3 = new Date(1991, 1, 1, endHour, endMinute);
-                return time1 >= time2 && time1 <= time3;
-            },
-            updateTime() {
-                if (parseInt(this.displayCheck.isAfternoon) === 1) {
-                    this.displayCheck.hour += 12;
-                }
-                let date = this.value;
-                //校验失败使用原来的 display恢复，成功则使用displayCheck更新
-                if (this.checkTime()) {
-                    console.log(this.displayCheck);
-                    date.setHours(this.displayCheck.hour);
-                    date.setMinutes(this.displayCheck.minutes);
-                    console.log(date);
-                    this.$emit('updateDay', date);
-                    this.$refs.popover.close();
-                } else {
-                    console.log(this.displayCheck);
-                    this.timeScopeFunction();
-                    date.setHours(this.display.hour);
-                    date.setMinutes(this.display.minutes);
-                    this.$emit('updateDay', date);
-                }
-
-                let [y, m, n, hour, minutes] = helper.getYearMonthDate(this.value);
-                if (hour > 12) {
-                    this.display.isAfternoon = '1';
-                    this.displayCheck.isAfternoon = '1';
-                    hour -= 12;
-                }
-                this.display.hour = hour;
-                this.displayCheck.hour = hour;
-                this.display.minutes = minutes;
-                this.displayCheck.minutes = minutes;
-
             },
             isCurrentMonth(day) {
                 const [year1, month1] = this.helper.getYearMonthDate(day);
@@ -312,12 +259,7 @@
                 const oldDate = new Date(this.display.year, this.display.month, 1);
                 const newDate = helper.addYear(oldDate, -1);
                 let [year, month, day, hour, minutes] = helper.getYearMonthDate(newDate);
-                let isAfternoon = '0';
-                if (hour > 12) {
-                    isAfternoon = '1';
-                    hour -= 12;
-                }
-                minutes = '15';
+
                 this.display = {year, month, isAfternoon, hour, minutes};
             },
             preMonth() {
@@ -399,7 +341,7 @@
             },
             onClickClear() {
                 this.$emit('updateDay', new Date());
-                this.$refs.popover.close();
+
             }
         }
     };
@@ -409,6 +351,64 @@
     @import "./_var";
 
     .g-date-picker {
+        &-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            border: 1px solid green;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            &-select {
+                border-right: 1px solid;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                padding: 0 10px;
+
+                &-year {
+                    font-size: 12px;
+                    font-weight: bold;
+                }
+
+                &-month {
+                    font-size: 18px;
+                    font-weight: bolder;
+                }
+            }
+
+            &-days {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-around;
+                align-items: center;
+                width: 80%;
+
+                & .selected {
+                    color: #ffffff;
+                    background-color: @blue;
+                    border-radius: 50%;
+                }
+
+                &-day {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    padding: 6px;
+
+                    &-week {
+                        display: block;
+                        font-size: 12px;
+                        margin-bottom: 6px;
+                    }
+                }
+            }
+        }
+
         &-nav {
             display: flex;
             justify-content: space-around;
@@ -416,7 +416,13 @@
         }
 
         &-pop {
-            padding: 8px;
+            border: 1px solid #ddd;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
         }
 
         &-pop-wrapper {
@@ -474,16 +480,10 @@
 
             &.currentMonth {
                 color: black;
-
-                &:hover {
-                    background-color: @blue;
-                    color: #FFF;
-                    cursor: pointer;
-                }
             }
 
             &.today {
-                background-color: @grey;
+                background-color: rgba(221, 221, 221, 0.34);
             }
 
             &.selected {
@@ -528,8 +528,8 @@
             display: inline-flex;
             justify-content: center;
             align-items: center;
-            height: 32px;
-            width: 32px;
+            height: 48px;
+            width: 48px;
             cursor: default;
         }
 
@@ -542,6 +542,24 @@
 
     /deep/ .popover-content-wrapper {
         padding: 0;
+    }
+
+    @keyframes bounce-in {
+        0% {
+            transform: translateY(100%);
+        }
+
+        100% {
+            transform: translateY(0%);
+        }
+    }
+
+    .slide-enter-active {
+        animation: bounce-in .5s;
+    }
+
+    .slide-leave-active {
+        animation: bounce-in .5s reverse;
     }
 
 
