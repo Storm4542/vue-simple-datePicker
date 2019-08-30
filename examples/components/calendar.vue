@@ -33,34 +33,7 @@
                             iconname='rightright'></g-icon></span>
                 </div>
                 <div v-touch:left="onLeftTouchPanels" v-touch:right="onRightTouchPanels" class="g-date-picker-panels">
-                    <template v-if="mode === 'months'">
-                        <div :class="c('selectMonth')">
-                            <div :class="c('selects')">
-                                <label>
-                                    <select @change="onSelectYear" :value="display.year">
-                                        <option v-for="year in years" :value="year">{{year}}</option>
-                                    </select>年
-                                </label>
-                                <label>
-                                    <select @change="onSelectMonth" :value="display.month">
-                                        <option value="0">1</option>
-                                        <option value="1">2</option>
-                                        <option value="2">3</option>
-                                        <option value="3">4</option>
-                                        <option value="4">5</option>
-                                        <option value="5">6</option>
-                                        <option value="6">7</option>
-                                        <option value="7">8</option>
-                                        <option value="8">9</option>
-                                        <option value="9">10</option>
-                                        <option value="10">11</option>
-                                        <option value="11">12</option>
-                                    </select>月
-                                </label>
-                            </div>
-                        </div>
-                    </template>
-                    <template v-else-if="mode === 'days'">
+                    <template>
                         <div :class="c('weekdays')">
                                 <span :class="c('weekday')" v-for="n in [1,2,3,4,5,6,0]" :key="n">
                                     {{weekdays[n]}}
@@ -85,7 +58,7 @@
                 </div>
                 <div :class="c('actions')">
                     <g-button v-show="mode!=='time'" @click="onClickToday">今天</g-button>
-                    <g-button @click="onClickClear">清除</g-button>
+                    <g-button @click="onClickConfirm">确定</g-button>
                 </div>
             </div>
         </transition>
@@ -100,7 +73,7 @@
 
 
     export default {
-        name: "g-date-picker",
+        name: "g-calendar",
         components: {GIcon, GButton},
         directives: {ClickOutside},
         props: {
@@ -127,6 +100,10 @@
             time: {
                 type: Boolean,
                 default: true
+            },
+            onConfirm: {
+                type: Function,
+                default: () => {}
             }
         },
         mounted() {
@@ -339,9 +316,9 @@
                 this.display.month = m;
                 this.$emit('updateDay', date);
             },
-            onClickClear() {
-                this.$emit('updateDay', new Date());
-
+            onClickConfirm() {
+                this.onConfirm();
+                this.close();
             }
         }
     };
@@ -351,6 +328,8 @@
     @import "./_var";
 
     .g-date-picker {
+        text-align: center;
+
         &-header {
             position: fixed;
             top: 0;
@@ -361,6 +340,7 @@
             justify-content: center;
             align-items: center;
             background: #FFFFFF;
+
             &-select {
                 border-right: 1px solid;
                 display: flex;

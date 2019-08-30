@@ -12,6 +12,7 @@
             <!--            </g-date-picker>-->
             <calendar :value="value"
                       @updateDay="value=$event"
+                      :on-confirm="confirm"
                       :time="false"></calendar>
             <!--            <button @click="x">确定</button>-->
             <!--            <datepicker :value="value" @updateDay="value = $event" :time="false" :scope="scope"-->
@@ -45,8 +46,11 @@
             },
             timeScopeFunction() {
                 alert('日期限制为 8:30 ~ 22:30');
-
             },
+            confirm() {
+                //点击确定要干的事情
+                console.log('点击确定了');
+            }
         }
     };
 </script>
