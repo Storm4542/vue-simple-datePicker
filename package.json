@@ -1,6 +1,6 @@
 {
   "name": "vue-simple-datepicker-ln",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "private": false,
   "main": "lib/vue-simple-datepicker.umd.min.js",
   "repository": {
