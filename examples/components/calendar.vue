@@ -360,7 +360,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-
+            background: #FFFFFF;
             &-select {
                 border-right: 1px solid;
                 display: flex;
@@ -423,6 +423,7 @@
             bottom: 0;
             left: 0;
             right: 0;
+            background: #FFFFFF;
         }
 
         &-pop-wrapper {
