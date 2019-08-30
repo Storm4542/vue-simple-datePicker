@@ -1,6 +1,5 @@
 export default {
     bind: function (el, binding, vnode) {
-        console.log(el,binding,vnode);
         document.addEventListener('click', (e) => {
             let {target} = e;
             if (el === target || el.contains(target)) {

@@ -104,6 +104,10 @@
             onConfirm: {
                 type: Function,
                 default: () => {}
+            },
+            onChangeDay: {
+                type: Function,
+                default: () => {}
             }
         },
         mounted() {
@@ -205,6 +209,7 @@
                 let [year, month, day, hour, minutes] = helper.getYearMonthDate(date);
                 this.display = {year, month, day, hour, minutes};
                 this.$emit('updateDay', date);
+                this.onChangeDay();
             },
             nextMode() {
                 if (this.mode === 'months') {
