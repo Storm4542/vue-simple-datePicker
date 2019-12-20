@@ -29,7 +29,6 @@
             },
             iconPosition: {
                 type: String,
-                default: 'left',
                 validate: function (value) {  //属性检查器
                     return !(value !== 'left' && value !== 'right');
                 }
