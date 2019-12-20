@@ -55,7 +55,7 @@
             buttonClass() {
                 let array = [];//初始化class
                 if (this.iconPosition) {
-                    array.push(`icon-${this.iconPosition}`);
+                    array.push(`g-icon-${this.iconPosition}`);
                 }
                 if (this.btntype) {
                     array.push(this.btntype);
