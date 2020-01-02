@@ -12,7 +12,7 @@
                      v-for="i in getVisibleWeek() " :key="i+0">
                     <span :class="c('header-days-day-week')">{{ weekTranslate(new Date(i)) }}</span>
                     <span :class="[c('header-days-day'),{selected:isSelected(new Date(i))}]"> {{new Date(i).getDate()}}</span>
-
+                    <span :class="c('todo')" v-if="hasTodo(i)"></span>
                 </div>
             </div>
         </div>
@@ -52,6 +52,7 @@
                                     <!--一周七天-->
                                 <!--二元数组-->
                                  {{getVisibleDay(i,j).getDate()}}
+                                <span :class="c('todo')" v-if="hasTodo(getVisibleDay(i,j))"></span>
                              </span>
                         </div>
                     </template>
@@ -100,6 +101,10 @@
             time: {
                 type: Boolean,
                 default: true
+            },
+            todoDateList: {
+                type: Array,
+                default: []
             },
             onConfirm: {
                 type: Function,
@@ -220,6 +225,9 @@
                     this.updateTime();
                 }
             },
+            hasTodo(day) {
+                return this.todoDateList.find(item => new Date(item).toDateString() === new Date(day).toDateString());
+            },
             isCurrentMonth(day) {
                 const [year1, month1] = this.helper.getYearMonthDate(day);
                 const [year2, month2] = this.helper.getYearMonthDate(new Date(this.display.year, this.display.month, 1));
@@ -335,6 +343,16 @@
     .g-date-picker {
         text-align: center;
 
+        &-todo {
+            position: absolute;
+            bottom: 1%;
+            border: 1px solid rgba(59, 153, 252, .7);;
+            border-radius: 100%;
+            height: 0.3em;
+            width: 0.3em;
+            background-color: rgba(59, 153, 252, .7);;
+        }
+
         &-header {
             position: fixed;
             top: 0;
@@ -384,11 +402,14 @@
                     justify-content: center;
                     align-items: center;
                     padding: 6px;
+                    height: 1em;
+                    width: 1em;
 
                     &-week {
                         display: block;
                         font-size: 12px;
                         margin-bottom: 6px;
+                        width: 2em;
                     }
                 }
             }
@@ -463,6 +484,7 @@
             color: #ddd;
             cursor: not-allowed;
             border-radius: @border-radius;
+            position: relative;
 
             &.currentMonth {
                 color: black;
