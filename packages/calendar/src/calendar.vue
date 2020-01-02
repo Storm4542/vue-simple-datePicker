@@ -113,7 +113,15 @@
             onChangeDay: {
                 type: Function,
                 default: () => {}
-            }
+            },
+            onChangeMonth:{
+                type: Function,
+                default: () => {}
+            },
+            onChangeYear:{
+                type: Function,
+                default: () => {}
+            },
         },
         mounted() {
             this.wrapper = this.$refs.wrapper;
@@ -249,8 +257,8 @@
                 const oldDate = new Date(this.display.year, this.display.month, 1);
                 const newDate = helper.addYear(oldDate, -1);
                 let [year, month, day, hour, minutes] = helper.getYearMonthDate(newDate);
-
                 this.display = {year, month, isAfternoon, hour, minutes};
+                this.onChangeYear({year, month})
             },
             preMonth() {
                 if (this.mode === 'time') return;
@@ -264,7 +272,7 @@
                 }
                 minutes = '15';
                 this.display = {year, month, isAfternoon, hour, minutes};
-
+                this.onChangeMonth({year, month})
             },
             nextYear() {
                 if (this.mode === 'time') return;
@@ -278,19 +286,15 @@
                 }
                 minutes = '15';
                 this.display = {year, month, isAfternoon, hour, minutes};
+                this.onChangeYear({year, month})
             },
             nextMonth() {
                 if (this.mode === 'time') return;
                 const oldDate = new Date(this.display.year, this.display.month, 1);
                 const newDate = helper.addMonth(oldDate, 1);
-                let [year, month, day, hour, minutes] = helper.getYearMonthDate(newDate);
-                let isAfternoon = '0';
-                if (hour > 12) {
-                    isAfternoon = '1';
-                    hour -= 12;
-                }
-                minutes = '15';
-                this.display = {year, month, isAfternoon, hour, minutes};
+                let [year, month] = helper.getYearMonthDate(newDate);
+                this.display = {year, month};
+                this.onChangeMonth({year, month})
             },
             onSelectYear(e) {
                 const year = parseInt(e.target.value);
