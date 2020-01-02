@@ -14,7 +14,10 @@
                       @updateDay="value=$event"
                       :on-confirm="confirm"
                       :on-change-day="onChangeDay"
+                      :on-change-month="onChangeMonth"
+                      :on-change-year="onChangeYear"
                       :todo-date-list="todoDateList"
+
                       :time="false"></calendar>
             <!--            <button @click="x">确定</button>-->
             <!--            <datepicker :value="value" @updateDay="value = $event" :time="false" :scope="scope"-->
@@ -56,7 +59,13 @@
             },
             onChangeDay() {
                 console.log('日期变化了');
-            }
+            },
+            onChangeYear({year,month}){
+                console.log(year,month);
+            },
+            onChangeMonth({year,month}){
+                console.log(year,month);
+            },
         }
     };
 </script>
