@@ -114,11 +114,11 @@
                 type: Function,
                 default: () => {}
             },
-            onChangeMonth:{
+            onChangeMonth: {
                 type: Function,
                 default: () => {}
             },
-            onChangeYear:{
+            onChangeYear: {
                 type: Function,
                 default: () => {}
             },
@@ -258,7 +258,7 @@
                 const newDate = helper.addYear(oldDate, -1);
                 let [year, month, day, hour, minutes] = helper.getYearMonthDate(newDate);
                 this.display = {year, month, isAfternoon, hour, minutes};
-                this.onChangeYear({year, month})
+                this.onChangeYear({year, month:month+1});
             },
             preMonth() {
                 if (this.mode === 'time') return;
@@ -272,7 +272,7 @@
                 }
                 minutes = '15';
                 this.display = {year, month, isAfternoon, hour, minutes};
-                this.onChangeMonth({year, month})
+                this.onChangeMonth({year, month:month+1});
             },
             nextYear() {
                 if (this.mode === 'time') return;
@@ -286,7 +286,7 @@
                 }
                 minutes = '15';
                 this.display = {year, month, isAfternoon, hour, minutes};
-                this.onChangeYear({year, month})
+                this.onChangeYear({year, month:month+1});
             },
             nextMonth() {
                 if (this.mode === 'time') return;
@@ -294,7 +294,7 @@
                 const newDate = helper.addMonth(oldDate, 1);
                 let [year, month] = helper.getYearMonthDate(newDate);
                 this.display = {year, month};
-                this.onChangeMonth({year, month})
+                this.onChangeMonth({year, month:month+1});
             },
             onSelectYear(e) {
                 const year = parseInt(e.target.value);
