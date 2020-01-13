@@ -2,16 +2,29 @@
     <div v-click-outside="close" class="g-date-picker" ref="wrapper">
         <div :class="c('header')">
             <div @click="datePickerVisible = !datePickerVisible" :class="c('header-select')">
-                <span :class="c('header-select-year')"> {{helper.getYearMonthDate(value)[0]}}</span>
-                <span :class="c('header-select-month')">  {{helper.getYearMonthDate(value)[1]+1}}月</span>
-                <span style="transform: rotate(0.75turn);"><g-icon iconname="left"></g-icon></span>
+                <span :class="c('header-select-year')">
+                    {{ helper.getYearMonthDate(value)[0] }}
+                </span>
+                <span :class="c('header-select-month')">
+                    {{ helper.getYearMonthDate(value)[1] + 1 }}月
+                </span>
+                <span style="transform: rotate(0.75turn);">
+                    <g-icon iconname="left"></g-icon>
+                </span>
             </div>
-            <div v-touch:left="onLeftTouchHeader" v-touch:right="onRightTouchHeader" :class="c('header-days')">
+            <div v-touch:left="onLeftTouchHeader"
+                 v-touch:right="onRightTouchHeader"
+                 :class="c('header-days')">
                 <div @click="onClickCell(new Date(i))"
-                     :class="[c('header-days-day')]"
-                     v-for="i in getVisibleWeek() " :key="i+0">
-                    <span :class="c('header-days-day-week')">{{ weekTranslate(new Date(i)) }}</span>
-                    <span :class="[c('header-days-day'),{selected:isSelected(new Date(i))}]"> {{new Date(i).getDate()}}</span>
+                     :class="[c('header-days-day'),{disabled:isDisabled(new Date(i),'header')}]"
+                     v-for="i in getVisibleWeek() "
+                     :key="i+0">
+                    <span :class="c('header-days-day-week')">
+                        {{ weekTranslate(new Date(i)) }}
+                    </span>
+                    <span :class="[c('header-days-day'),{selected:isSelected(new Date(i))}]">
+                        {{ new Date(i).getDate() }}
+                    </span>
                     <span :class="c('todo')" v-if="hasTodo(i)"></span>
                 </div>
             </div>
@@ -23,21 +36,23 @@
                                 iconname="leftleft"></g-icon></span>
                     <span @click="preMonth" :class="c('preMonth','navItem')"><g-icon
                             iconname="left"></g-icon></span>
-                    <span @click="onClickMonths" :class="c('yearAndMonth')">
+                    <span :class="c('yearAndMonth')">
                             <span>{{display.year}}年</span>
-                            <span>{{display.month+1}}月</span>
+                            <span>{{display.month + 1}}月</span>
                         </span>
                     <span @click="nextMonth" :class="c('nextMonth','navItem')"> <g-icon
                             iconname='right'></g-icon></span>
                     <span @click="nextYear" :class="c('nextYear','navItem')"><g-icon
                             iconname='rightright'></g-icon></span>
                 </div>
-                <div v-touch:left="onLeftTouchPanels" v-touch:right="onRightTouchPanels" class="g-date-picker-panels">
+                <div v-touch:left="onLeftTouchPanels"
+                     v-touch:right="onRightTouchPanels"
+                     class="g-date-picker-panels">
                     <template>
                         <div :class="c('weekdays')">
-                                <span :class="c('weekday')" v-for="n in [1,2,3,4,5,6,0]" :key="n">
-                                    {{weekdays[n]}}
-                                </span>
+                            <span :class="c('weekday')" v-for="n in [1,2,3,4,5,6,0]" :key="n">
+                                {{ weekdays[n] }}
+                            </span>
                         </div>
                         <!--6个 DIV 代表 6 行（6周） -->
                         <div :class="c('row')" v-for="i in helper.range(1,6)" :key="i">
@@ -46,12 +61,13 @@
                                   :class="[c('cell'),
                                       {currentMonth:isCurrentMonth(getVisibleDay(i,j)),
                                       selected:isSelected(getVisibleDay(i,j)),
-                                      today:isToady(getVisibleDay(i,j))}
+                                      today:isToady(getVisibleDay(i,j)),
+                                      disabled:isDisabled(getVisibleDay(i, j),'panel')}
                                       ]"
                                   v-for="j in helper.range(1,7)" :key="j">
                                     <!--一周七天-->
                                 <!--二元数组-->
-                                 {{getVisibleDay(i,j).getDate()}}
+                                 {{getVisibleDay(i, j).getDate()}}
                                 <span :class="c('todo')" v-if="hasTodo(getVisibleDay(i,j))"></span>
                              </span>
                         </div>
@@ -78,9 +94,14 @@
         components: {GIcon, GButton},
         directives: {ClickOutside},
         props: {
+
+            disabledDate: {
+                type: [Function, Array],
+                default: () => []
+            },
             firstDayOfWeek: {
                 type: Number,
-                default: 1
+                'default': 1
             },
             value: {
                 type: Date,
@@ -100,27 +121,31 @@
             },
             time: {
                 type: Boolean,
-                default: true
+                'default': true
             },
             todoDateList: {
                 type: Array,
-                default: []
+                'default': []
             },
             onConfirm: {
                 type: Function,
-                default: () => {}
+                'default': () => {
+                }
             },
             onChangeDay: {
                 type: Function,
-                default: () => {}
+                default: () => {
+                }
             },
             onChangeMonth: {
                 type: Function,
-                default: () => {}
+                default: () => {
+                }
             },
             onChangeYear: {
                 type: Function,
-                default: () => {}
+                default: () => {
+                }
             },
         },
         mounted() {
@@ -166,21 +191,21 @@
 
         },
         methods: {
-            onOpen() {
-                this.mode = 'days';
+            isDisabled(date, name) {
+                if (name === 'panel' && this.datePickerVisible === false) {
+                    return;
+                }
+                if (this.disabledDate instanceof Array) {
+                    return this.disabledDate.find(item => new Date(item).toDateString() === new Date(date).toDateString());
+                } else if (this.disabledDate instanceof Function) {
+                    return this.disabledDate(new Date(date));
+                }
             },
             close() {
                 this.datePickerVisible = false;
             },
             c(...classNames) {
                 return classNames.map(className => `g-date-picker-${className}`);
-            },
-            onClickMonths() {
-                if (this.mode !== 'months') {
-                    this.mode = 'months';
-                } else {
-                    this.mode = 'days';
-                }
             },
             formattedValue() {
                 if (!this.value) {
@@ -218,19 +243,19 @@
             onLeftTouchPanels() {
                 this.nextMonth();
             },
+
             onClickCell(date) {
+                if (this.isDisabled(date)) return;
                 let [year, month, day, hour, minutes] = helper.getYearMonthDate(date);
                 this.display = {year, month, day, hour, minutes};
                 this.$emit('updateDay', date);
                 this.onChangeDay();
-            },
-            nextMode() {
-                if (this.mode === 'months') {
-                    this.mode = 'days';
-                } else if (this.mode === 'days') {
-                    this.mode = 'time';
-                } else {
-                    this.updateTime();
+
+                if (this.value.getFullYear() !== year) {
+                    this.onChangeYear({year, month: month + 1});
+                }
+                if (this.value.getMonth() !== month) {
+                    this.onChangeMonth({year, month: month + 1});
                 }
             },
             hasTodo(day) {
@@ -316,15 +341,6 @@
                     this.dateScopeFunction();
                 }
 
-            },
-            onSelectTime(e) {
-                this.displayCheck.isAfternoon = parseInt(e.target.value);
-            },
-            onSelectHour(e) {
-                this.displayCheck.hour = parseInt(e.target.value);
-            },
-            onSelectMinutes(e) {
-                this.displayCheck.minutes = parseInt(e.target.value);
             },
             onClickToday() {
                 const date = new Date();
@@ -512,7 +528,6 @@
             font-weight: bolder;
         }
 
-
         &-selectMonth {
             width: 224px;
             height: 224px;
@@ -574,5 +589,16 @@
         animation: bounce-in .5s reverse;
     }
 
+    .disabled {
+        color: #ddd !important;
+
+        .g-date-picker-header-days-day {
+            color: #ddd;
+        }
+
+        .g-date-picker-header-days-day-week {
+            color: #ddd;
+        }
+    }
 
 </style>

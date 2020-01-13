@@ -17,7 +17,7 @@
                       :on-change-month="onChangeMonth"
                       :on-change-year="onChangeYear"
                       :todo-date-list="todoDateList"
-
+                      :disabled-date="disabledDate"
                       :time="false"></calendar>
             <!--            <button @click="x">确定</button>-->
             <!--            <datepicker :value="value" @updateDay="value = $event" :time="false" :scope="scope"-->
@@ -43,7 +43,11 @@
                 value: new Date(),
                 dateScope: [new Date(1992, 11), new Date()],
                 timeScope: ['8:30', '22:30'], //['8:30','12:30'] 在这之间的时间可选择
-                todoDateList: ['2020-01-03']
+                todoDateList: ['2020-01-03'],
+                // disabledDate: ['2020-01-02', new Date()]
+                disabledDate: (date) => {
+                    return new Date(date).toDateString() === new Date('2020-01-02').toDateString();
+                }
             };
         },
         methods: {
@@ -60,11 +64,11 @@
             onChangeDay() {
                 console.log('日期变化了');
             },
-            onChangeYear({year,month}){
-                console.log(year,month);
+            onChangeYear({year, month}) {
+                console.log(year, month);
             },
-            onChangeMonth({year,month}){
-                console.log(year,month);
+            onChangeMonth({year, month}) {
+                console.log(year, month);
             },
         }
     };
