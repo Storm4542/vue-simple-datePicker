@@ -1,7 +1,7 @@
 <template>
     <div v-click-outside="close" class="g-date-picker" ref="wrapper">
         <div :class="c('header')">
-            <div @click="datePickerVisible = !datePickerVisible" :class="c('header-select')">
+            <div @click="toggle" :class="c('header-select')">
                 <span :class="c('header-select-year')">
                     {{ helper.getYearMonthDate(value)[0] }}
                 </span>
@@ -25,7 +25,7 @@
                     <span :class="[c('header-days-day'),{selected:isSelected(new Date(i))}]">
                         {{ new Date(i).getDate() }}
                     </span>
-                    <span :class="c('todo')" v-if="hasTodo(i)"></span>
+                    <span :class="c('todo')" v-show="hasTodo(i)"></span>
                 </div>
             </div>
         </div>
@@ -68,13 +68,13 @@
                                     <!--一周七天-->
                                 <!--二元数组-->
                                  {{getVisibleDay(i, j).getDate()}}
-                                <span :class="c('todo')" v-if="hasTodo(getVisibleDay(i,j))"></span>
+                                <span :class="c('todo')" v-show="hasTodo(getVisibleDay(i,j))"></span>
                              </span>
                         </div>
                     </template>
                 </div>
                 <div :class="c('actions')">
-                    <g-button v-show="mode!=='time'" @click="onClickToday">今天</g-button>
+                    <g-button @click="onClickToday">今天</g-button>
                     <g-button @click="onClickConfirm">确定</g-button>
                 </div>
             </div>
@@ -148,26 +148,14 @@
                 }
             },
         },
-        mounted() {
-            this.wrapper = this.$refs.wrapper;
-        },
         data() {
             let [year, month, day, hour, minutes] = helper.getYearMonthDate(this.value !== undefined ? this.value : new Date());
-            let isAfternoon = '0';
-            if (hour > 12) {
-                isAfternoon = '1';
-                hour -= 12;
-            }
-            minutes = '15';
             return {
-                mode: 'days', // | 'months' | 'days' | 'time'
                 helper: helper,
                 datePickerVisible: false,
                 weekdays: ['日', '一', '二', '三', '四', '五', '六'],
-                wrapper: null,
-                display: {year, month, isAfternoon, hour, minutes},
-                displayCheck: {year, month, isAfternoon, hour, minutes},
-                cellDate: new Date(),
+                display: {year, month, hour, minutes},
+
             };
         },
         computed: {
@@ -185,23 +173,25 @@
                 }
                 return array;
             },
-            years() {
-                return helper.range(this.dateScope[0].getFullYear(), this.dateScope[1].getFullYear());
-            }
 
         },
         methods: {
             isDisabled(date, name) {
-                if (name === 'panel' && this.datePickerVisible === false) {
-                    return;
-                }
+                // if (name === 'panel' && this.datePickerVisible === false) {
+                //     return;
+                // }
                 if (this.disabledDate instanceof Array) {
                     return this.disabledDate.find(item => new Date(item).toDateString() === new Date(date).toDateString());
                 } else if (this.disabledDate instanceof Function) {
                     return this.disabledDate(new Date(date));
                 }
             },
+            toggle() {
+
+                this.datePickerVisible = !this.datePickerVisible;
+            },
             close() {
+                console.log('close');
                 this.datePickerVisible = false;
             },
             c(...classNames) {
@@ -278,7 +268,6 @@
                 return year === year1 && month === month1 && day === day1;
             },
             preYear() {
-                if (this.mode === 'time') return;
                 const oldDate = new Date(this.display.year, this.display.month, 1);
                 const newDate = helper.addYear(oldDate, -1);
                 let [year, month, day, hour, minutes] = helper.getYearMonthDate(newDate);
@@ -286,35 +275,20 @@
                 this.onChangeYear({year, month: month + 1});
             },
             preMonth() {
-                if (this.mode === 'time') return;
                 const oldDate = new Date(this.display.year, this.display.month, 1);
                 const newDate = helper.addMonth(oldDate, -1);
                 let [year, month, day, hour, minutes] = helper.getYearMonthDate(newDate);
-                let isAfternoon = '0';
-                if (hour > 12) {
-                    isAfternoon = '1';
-                    hour -= 12;
-                }
-                minutes = '15';
-                this.display = {year, month, isAfternoon, hour, minutes};
+                this.display = {year, month, hour, minutes};
                 this.onChangeMonth({year, month: month + 1});
             },
             nextYear() {
-                if (this.mode === 'time') return;
                 const oldDate = new Date(this.display.year, this.display.month, 1);
                 const newDate = helper.addYear(oldDate, 1);
                 let [year, month, day, hour, minutes] = helper.getYearMonthDate(newDate);
-                let isAfternoon = '0';
-                if (hour > 12) {
-                    isAfternoon = '1';
-                    hour -= 12;
-                }
-                minutes = '15';
-                this.display = {year, month, isAfternoon, hour, minutes};
+                this.display = {year, month, hour, minutes};
                 this.onChangeYear({year, month: month + 1});
             },
             nextMonth() {
-                if (this.mode === 'time') return;
                 const oldDate = new Date(this.display.year, this.display.month, 1);
                 const newDate = helper.addMonth(oldDate, 1);
                 let [year, month] = helper.getYearMonthDate(newDate);
