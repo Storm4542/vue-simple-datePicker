@@ -220,14 +220,24 @@
                 let value = (this.value).getTime();
                 let oneDay = 1000 * 60 * 60 * 24;
                 //return [value - 3 * oneDay, value - 2 * oneDay, value - oneDay, value, value + oneDay, value + 2 * oneDay, new Date(value + 3 * oneDay)];
-                return [value - 3 * oneDay, value - 2 * oneDay, value - oneDay, value, value + oneDay, value + 2 * oneDay, new Date(value + 3 * oneDay)];
+                return [value, value + oneDay, value + 2 * oneDay, value + 3 * oneDay, value + 4 * oneDay, +value + 5 * oneDay, value + 6 * oneDay];
 
             },
             onLeftTouchHeader() {
-                this.onClickCell(new Date((this.value).getTime() + 6 * 1000 * 60 * 60 * 24));
+                let oneDay = 1000 * 60 * 60 * 24;
+                let time = (this.value).getTime();
+                let datesList = [time + oneDay, time + 2 * oneDay, time + 3 * oneDay, time + 4 * oneDay, time + 5 * oneDay, time + 6 * oneDay];
+                datesList = datesList.reverse();
+                let selectDate = datesList.find(item => !this.isDisabled(item));
+                this.onClickCell(new Date(selectDate));
             },
             onRightTouchHeader() {
-                this.onClickCell(new Date((this.value).getTime() - 6 * 1000 * 60 * 60 * 24));
+                let oneDay = 1000 * 60 * 60 * 24;
+                let time = (this.value).getTime();
+                let datesList = [time - oneDay, time - 2 * oneDay, time - 3 * oneDay, time - 4 * oneDay, time - 5 * oneDay, time - 6 * oneDay];
+                datesList = datesList.reverse();
+                let selectDate = datesList.find(item => !this.isDisabled(item));
+                this.onClickCell(new Date(selectDate));
             },
             onRightTouchPanels() {
                 this.preMonth();
@@ -235,7 +245,20 @@
             onLeftTouchPanels() {
                 this.nextMonth();
             },
+            onClickHeaderCell(date) {
+                // if (this.isDisabled(date)) return;
+                let [year, month, day, hour, minutes] = helper.getYearMonthDate(date);
+                this.display = {year, month, day, hour, minutes};
+                this.$emit('updateDay', date);
+                this.onChangeDay();
 
+                if (this.value.getFullYear() !== year) {
+                    this.onChangeYear({year, month: month + 1});
+                }
+                if (this.value.getMonth() !== month) {
+                    this.onChangeMonth({year, month: month + 1});
+                }
+            },
             onClickCell(date) {
                 if (this.isDisabled(date)) return;
                 let [year, month, day, hour, minutes] = helper.getYearMonthDate(date);

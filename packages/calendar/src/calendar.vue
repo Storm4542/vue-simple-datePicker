@@ -25,7 +25,7 @@
                     <span :class="[c('header-days-day'),{selected:isSelected(new Date(i))}]">
                         {{ new Date(i).getDate() }}
                     </span>
-                    <span :class="c('todo')" v-show="hasTodo(i)"></span>
+                    <span :class="c('todo')" v-show="hasTodo(i)"/>
                 </div>
             </div>
         </div>
@@ -33,17 +33,17 @@
             <div v-show="datePickerVisible" class="g-date-picker-pop" @selectstart.prevent>
                 <div class="g-date-picker-nav">
                         <span @click="preYear" :class="c('preYear','navItem')"> <g-icon
-                                iconname="leftleft"></g-icon></span>
+                                iconname="leftleft"/></span>
                     <span @click="preMonth" :class="c('preMonth','navItem')"><g-icon
-                            iconname="left"></g-icon></span>
+                            iconname="left"/></span>
                     <span :class="c('yearAndMonth')">
                             <span>{{display.year}}年</span>
                             <span>{{display.month + 1}}月</span>
                         </span>
                     <span @click="nextMonth" :class="c('nextMonth','navItem')"> <g-icon
-                            iconname='right'></g-icon></span>
+                            iconname='right'/></span>
                     <span @click="nextYear" :class="c('nextYear','navItem')"><g-icon
-                            iconname='rightright'></g-icon></span>
+                            iconname='rightright'/></span>
                 </div>
                 <div v-touch:left="onLeftTouchPanels"
                      v-touch:right="onRightTouchPanels"
@@ -219,13 +219,25 @@
             getVisibleWeek() {
                 let value = (this.value).getTime();
                 let oneDay = 1000 * 60 * 60 * 24;
-                return [value - 3 * oneDay, value - 2 * oneDay, value - oneDay, value, value + oneDay, value + 2 * oneDay, new Date(value + 3 * oneDay)];
+                //return [value - 3 * oneDay, value - 2 * oneDay, value - oneDay, value, value + oneDay, value + 2 * oneDay, new Date(value + 3 * oneDay)];
+                return [value, value + oneDay, value + 2 * oneDay, value + 3 * oneDay, value + 4 * oneDay, +value + 5 * oneDay, value + 6 * oneDay];
+
             },
             onLeftTouchHeader() {
-                this.onClickCell(new Date((this.value).getTime() + 6 * 1000 * 60 * 60 * 24));
+                let oneDay = 1000 * 60 * 60 * 24;
+                let time = (this.value).getTime();
+                let datesList = [time + oneDay, time + 2 * oneDay, time + 3 * oneDay, time + 4 * oneDay, time + 5 * oneDay, time + 6 * oneDay];
+                datesList = datesList.reverse();
+                let selectDate = datesList.find(item => !this.isDisabled(item));
+                this.onClickCell(new Date(selectDate));
             },
             onRightTouchHeader() {
-                this.onClickCell(new Date((this.value).getTime() - 6 * 1000 * 60 * 60 * 24));
+                let oneDay = 1000 * 60 * 60 * 24;
+                let time = (this.value).getTime();
+                let datesList = [time - oneDay, time - 2 * oneDay, time - 3 * oneDay, time - 4 * oneDay, time - 5 * oneDay, time - 6 * oneDay];
+                datesList = datesList.reverse();
+                let selectDate = datesList.find(item => !this.isDisabled(item));
+                this.onClickCell(new Date(selectDate));
             },
             onRightTouchPanels() {
                 this.preMonth();
@@ -233,7 +245,20 @@
             onLeftTouchPanels() {
                 this.nextMonth();
             },
+            onClickHeaderCell(date) {
+                // if (this.isDisabled(date)) return;
+                let [year, month, day, hour, minutes] = helper.getYearMonthDate(date);
+                this.display = {year, month, day, hour, minutes};
+                this.$emit('updateDay', date);
+                this.onChangeDay();
 
+                if (this.value.getFullYear() !== year) {
+                    this.onChangeYear({year, month: month + 1});
+                }
+                if (this.value.getMonth() !== month) {
+                    this.onChangeMonth({year, month: month + 1});
+                }
+            },
             onClickCell(date) {
                 if (this.isDisabled(date)) return;
                 let [year, month, day, hour, minutes] = helper.getYearMonthDate(date);
