@@ -17,7 +17,7 @@
                       :on-change-month="onChangeMonth"
                       :on-change-year="onChangeYear"
                       :todo-date-list="todoDateList"
-                      :disabled-date="disabledDate"
+                      :disabled-date="disabledDate2"
                       :time="false"/>
             <!--            <button @click="x">确定</button>-->
             <!--            <datepicker :value="value" @updateDay="value = $event" :time="false" :scope="scope"-->
@@ -51,6 +51,15 @@
             };
         },
         methods: {
+            disabledDate2(date) {
+                let now = new Date()
+                if (now.getTime() > date) {
+                    return true;
+                } else {
+                    return false;
+                }
+
+            },
             dateScopeFunction() {
                 alert('日期限制为 1992.11 - 今天');
             },

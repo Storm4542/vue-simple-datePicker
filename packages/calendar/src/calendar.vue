@@ -260,7 +260,7 @@
                 }
             },
             onClickCell(date) {
-                if (this.isDisabled(date)) return;
+                if (date == 'Invalid Date') return;
                 let [year, month, day, hour, minutes] = helper.getYearMonthDate(date);
                 this.display = {year, month, day, hour, minutes};
                 this.$emit('updateDay', date);
