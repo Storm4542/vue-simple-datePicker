@@ -2,15 +2,15 @@
 
 ## Project setup
 ```
-yarn install
+yarn add vue-datepicker-zty
 ```
 
-### Compiles and hot-reloads for development
-```
-yarn run serve
-```
 
-### Compiles and minifies for production
-```
-yarn run build
-```
+
+**Thanks for JetBrains  Open Source License**
+
+
+
+
+
+![Thanks for JetBrains  Open Source License](https://cdn.jsdelivr.net/gh/Storm4542/PIC/mmexport1587005594046.jpg)
